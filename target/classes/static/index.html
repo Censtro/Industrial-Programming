@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Processor</title>
+</head>
+<body>
+<h1>Upload a File</h1>
+<form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" id="fileInput" name="file" accept=".txt,.json,.xml,.yaml" required>
+    <button type="submit">Upload</button>
+</form>
+<h2>Result:</h2>
+<pre id="result" style="border: 1px solid #ccc; padding: 10px; background: #f9f9f9;"></pre>
+
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+        e.preventDefault(); // Предотвращает перезагрузку страницы
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('Please select a file to upload!');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const resultElement = document.getElementById('result');
+        resultElement.textContent = 'Processing...';
+
+        try {
+            const response = await fetch('/api/files/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.statusText}`);
+            }
+
+            const resultText = await response.text();
+            resultElement.textContent = resultText;
+        } catch (error) {
+            resultElement.textContent = `Error: ${error.message}`;
+        }
+    });
+</script>
+</body>
+</html>
